@@ -1,0 +1,47 @@
+﻿@model X.PagedList.IPagedList<BuildingShopCore.Models.ProductCategory>
+@using X.PagedList.Extensions;
+@using X.Web.PagedList
+
+<div class="table-responsive">
+    <table class="table", id="CategoriesTable">
+    <tr>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.IdSortParm" class="my-custom-button">Номер</a>
+        </th>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSortParm" class="my-custom-button">Наименование</a>
+        </th>
+    </tr>
+
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    <ul class="navbar-nav d-print-none">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle my-custom-button text-center" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a asp-action="Edit" asp-route-itemid="@item.Id" class="my-custom-link">Редактировать</a>
+                                <a asp-action="Delete" asp-route-itemid="@item.Id" class="my-custom-link">Удалить</a>
+                            </div>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div class="d-print-none">
+    Страница @(Model.PageCount<Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+    @Html.PagedListPager(Model,page=>Url.Action("Index",
+    new{page,sortOrder=ViewBag.CurrentSort,currentFilter=ViewBag.currentFilter}));
+</div>

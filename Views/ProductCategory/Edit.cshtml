@@ -1,0 +1,33 @@
+﻿@model BuildingShopCore.Models.ProductCategory
+
+@{
+    ViewData["Title"] = "Редактирование";
+}
+
+<h2>Редактирование категории</h2>
+
+<h4>№@Model.Id</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label col-md-2">Наименование</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <p>
+                <div class="form-group">
+                    <input type="submit" value="Сохранить" class="my-custom-button"/>
+                    <a class="my-custom-link" asp-action="Index">Назад</a>
+                </div>
+            </p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

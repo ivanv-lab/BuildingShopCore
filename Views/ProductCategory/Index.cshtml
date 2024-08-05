@@ -1,0 +1,48 @@
+﻿@model PagedList.Core.IPagedList<BuildingShopCore.Models.ProductCategory>
+
+@{
+    ViewData["Title"] = "Категории товаров";
+}
+
+<div class="loader"></div>
+
+<h2>Категории товаров</h2>
+
+<p>
+    <a class="my-custom-link" asp-action="Create">Добавить категорию</a>
+    <button class="my-custom-link" onclick="window.print();">Печать</button>
+</p>
+
+<form id="NewTableId" asp-action="CategoryPartialView" asp-controller="ProductCategory" method="post">
+    <div class="form-group">
+        <p>
+            Поиск: <input type="text" class="form-control" value="@ViewBag.CurrentFilter" id="searchInput" name="SearchString" oninput="performSearch()" />
+        </p>
+    </div>
+</form>
+
+<div id="divCategories">
+    @Html.PartialAsync("_CategoryPartialView")
+    @Html.Raw(ViewBag.Data)
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    function performSearch() {
+        var searchString = $('#searchInput').val();
+        if (searchString.length > 0) {
+            $.ajax({
+                url: '@Url.Action("CategoryPartialView","ProductCategory")',
+                type: 'POST',
+                data: { searchString: searchString },
+                success: function (data) {
+                    $('#divCategories').html(data);
+                    $('.loader').fadeOut();
+                }
+            });
+        }
+        else {
+            $('#divCategories').load('@Url.Action("CategoryPartialView", "ProductCategory")');
+        }
+    }
+</script>
