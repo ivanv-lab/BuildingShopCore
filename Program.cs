@@ -13,9 +13,10 @@ namespace BuildingShopCore
             builder.Services.AddControllersWithViews();
 
             string connection = builder.Configuration
-                .GetConnectionString("DefaultConnection");
+                .GetConnectionString("SQLiteConnection");
             builder.Services.AddDbContext<BuildingShopContext>
-                (options=>options.UseSqlServer(connection));
+                //(options=>options.UseSqlServer(connection));
+                (options=>options.UseSqlite(connection));
 
             builder.Services.AddSession();
 

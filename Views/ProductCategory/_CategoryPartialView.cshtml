@@ -1,4 +1,5 @@
-﻿@model X.PagedList.IPagedList<BuildingShopCore.Models.ProductCategory>
+﻿@model IPagedList<BuildingShopCore.Models.ProductCategory>
+@using X.PagedList;
 @using X.PagedList.Extensions;
 @using X.Web.PagedList
 
@@ -6,10 +7,10 @@
     <table class="table", id="CategoriesTable">
     <tr>
         <th>
-            <a asp-action="Index" asp-route-sortOrder="@ViewBag.IdSortParm" class="my-custom-button">Номер</a>
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Номер</a>
         </th>
         <th>
-            <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSortParm" class="my-custom-button">Наименование</a>
+            <a asp-action="CategoryPartialView" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Наименование</a>
         </th>
     </tr>
 
@@ -40,8 +41,8 @@
 </div>
 
 <div class="d-print-none">
-    Страница @(Model.PageCount<Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+    Страница @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
 
-    @Html.PagedListPager(Model,page=>Url.Action("Index",
-    new{page,sortOrder=ViewBag.CurrentSort,currentFilter=ViewBag.currentFilter}));
+    @Html.PagedListPager(Model, page => Url.Action("CategoryPartialView",
+            new { page, sortOrder = ViewData["CurrentSort"], currentFilter = ViewData["CurrentFilter"]}))
 </div>

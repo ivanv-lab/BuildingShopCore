@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
-using PagedList.Core;
+using X.PagedList.Extensions;
 
 namespace BuildingShopCore.Controllers
 {

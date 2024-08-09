@@ -1,8 +1,6 @@
 ﻿using BuildingShopCore.Models;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using X.PagedList;
 using X.PagedList.Extensions;
 
 namespace BuildingShopCore.Controllers
@@ -14,9 +12,8 @@ namespace BuildingShopCore.Controllers
         public ProductCategoryController(BuildingShopContext context)=>
             _context = context;
 
-
-        public IActionResult Index()=>
-             View();
+        public IActionResult Index() =>
+            View();
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -92,18 +89,19 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<IActionResult> CategoryPartialView(string sortOrder,
+        public async Task<PartialViewResult> CategoryPartialView(string sortOrder,
             string currentFilter, string searchString, int? page)
         {
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.NameSortParm = sortOrder=="Name" ? "Name_desc" : "Name";
-            ViewBag.IdSortParm = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
 
             if (searchString != null) page = 1;
             else searchString = currentFilter;
-            ViewBag.CurrentFilter = searchString;
 
-            var categories = await _context.ProductCategories.ToListAsync();
+            ViewData["CurrentFilter"] = searchString;
+
+            var categories =await _context.ProductCategories.ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 categories = categories
@@ -124,14 +122,19 @@ namespace BuildingShopCore.Controllers
                     categories = categories.OrderByDescending(c => c.Id).ToList();
                     break;
                 default:
-                    categories=categories.OrderBy(c => c.Id).ToList();
+                    categories = categories.OrderBy(c => c.Id).ToList();
                     break;
-
             }
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_CategoryPartialLayout"), categories.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_CategoryPartialView"), categories.ToPagedList(pageNumber, pageSize));
         }
+
+        //public async Task<IActionResult> CategoryPartialView()
+        //{
+        //    var categories=await _context.ProductCategories.ToArrayAsync();
+        //    return PartialView(categories);
+        //}
     }
 }

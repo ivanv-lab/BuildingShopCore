@@ -1,5 +1,10 @@
-﻿@model PagedList.Core.IPagedList<BuildingShopCore.Models.ProductCategory>
+﻿@model IPagedList<BuildingShopCore.Models.ProductCategory>
+@using BuildingShopCore.Controllers;
+@using X.PagedList;
+@using X.PagedList.Extensions;
+@using X.Web.PagedList
 
+<link href="~/css/PagedList.css" rel="stylesheet" type="text/css" />
 @{
     ViewData["Title"] = "Категории товаров";
 }
@@ -16,33 +21,40 @@
 <form id="NewTableId" asp-action="CategoryPartialView" asp-controller="ProductCategory" method="post">
     <div class="form-group">
         <p>
-            Поиск: <input type="text" class="form-control" value="@ViewBag.CurrentFilter" id="searchInput" name="SearchString" oninput="performSearch()" />
+            Поиск: <input type="text" class="form-control" value="@ViewData["CurrentFilter"]" id="searchInput" name="SearchString" oninput="performSearch()" />
         </p>
     </div>
 </form>
 
-<div id="divCategories">
-    @Html.PartialAsync("_CategoryPartialView")
-    @Html.Raw(ViewBag.Data)
-</div>
+ <div id="divCategories">
+@*      @Html.PartialAsync("CategoryPartialView",Model)
+     @Html.Raw(ViewData["Data"]) *@
+ </div> 
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    function performSearch() {
-        var searchString = $('#searchInput').val();
-        if (searchString.length > 0) {
-            $.ajax({
-                url: '@Url.Action("CategoryPartialView","ProductCategory")',
-                type: 'POST',
-                data: { searchString: searchString },
-                success: function (data) {
-                    $('#divCategories').html(data);
-                    $('.loader').fadeOut();
-                }
-            });
+ @section Scripts{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            performSearch();
+        });
+
+
+        function performSearch() {
+            var searchString = $('#searchInput').val();
+            if (searchString.length > 0) {
+                $.ajax({
+                    url: '@Url.Action("CategoryPartialView", "ProductCategory")',
+                    type: 'POST',
+                    data: { searchString: searchString},
+                    success: function (data) {
+                        $('#divCategories').html(data);
+                        $('.loader').fadeOut();
+                    }
+                });
+            }
+            else {
+                $('#divCategories').load('@Url.Action("CategoryPartialView", "ProductCategory")');
+            }
         }
-        else {
-            $('#divCategories').load('@Url.Action("CategoryPartialView", "ProductCategory")');
-        }
-    }
-</script>
+    </script>
+}
