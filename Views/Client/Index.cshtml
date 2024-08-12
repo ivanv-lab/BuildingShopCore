@@ -1,4 +1,4 @@
-﻿@model IPagedList<BuildingShopCore.Models.ProductCategory>
+﻿@model IPagedList<BuildingShopCore.Models.Client>
 @using BuildingShopCore.Controllers;
 @using X.PagedList;
 @using X.PagedList.Extensions;
@@ -6,19 +6,19 @@
 
 <link href="~/css/PagedList.css" rel="stylesheet" type="text/css" />
 @{
-    ViewData["Title"] = "Категории товаров";
+    ViewData["Title"] = "Клиенты";
 }
 
 <div class="loader"></div>
 
-<h2>Категории товаров</h2>
+<h2>Клиенты</h2>
 
 <p>
-    <a class="my-custom-link" asp-action="Create">Добавить категорию</a>
+    <a class="my-custom-link" asp-action="Create">Добавить клиента</a>
     <button class="my-custom-link" onclick="window.print();">Печать</button>
 </p>
 
-<form id="NewTableId" asp-action="CategoryPartialView" asp-controller="ProductCategory" method="post">
+<form id="NewTableId" asp-action="ClientPartialView" asp-controller="Client" method="post">
     <div class="form-group">
         <p>
             Поиск: <input type="text" class="form-control" value="@ViewData["CurrentFilter"]" id="searchInput" name="SearchString" oninput="performSearch()" />
@@ -26,23 +26,23 @@
     </div>
 </form>
 
-<div id="divCategories">
-<partial name="_CategoryPartialView"/>
+<div id="divClients">
+    <partial name="_ClientPartialView" />
 </div>
 
- @section Scripts{
+@section Scripts{
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         function performSearch() {
             var searchString = $('#searchInput').val();
 
             $.ajax({
-                url: '@Url.Action("CategoryPartialView", "ProductCategory")',
+                url: '@Url.Action("ClientPartialView", "Client")',
                 type: 'GET',
                 data: { searchString: searchString },
                 success: function (data) {
                     console.log(searchString);
-                    $('#divCategories').html(data);
+                    $('#divClients').html(data);
                 }
             });
         }

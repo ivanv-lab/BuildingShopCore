@@ -12,8 +12,50 @@ namespace BuildingShopCore.Controllers
         public ProductCategoryController(BuildingShopContext context)=>
             _context = context;
 
-        public IActionResult Index() =>
-            View();
+        public async Task<IActionResult> Index(string sortOrder,
+            string currentFilter, string searchString, int? page)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var categories = await _context.ProductCategories.ToListAsync();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                categories = categories
+                    .Where(c => c.Name.Contains(searchString)
+                    || c.Id.ToString().Contains(searchString)
+                    && c.IsDeleted == false).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "Name":
+                    categories = categories.OrderBy(c => c.Name).ToList();
+                    break;
+                case "Name_desc":
+                    categories = categories.OrderByDescending(c => c.Name).ToList();
+                    break;
+                case "Id_desc":
+                    categories = categories.OrderByDescending(c => c.Id).ToList();
+                    break;
+                default:
+                    categories = categories.OrderBy(c => c.Id).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(categories.ToPagedList(pageNumber, pageSize));
+        }
+
+        //public IActionResult Index() =>
+        //    View();
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -89,7 +131,7 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<PartialViewResult> CategoryPartialView(string sortOrder,
+        public async Task<IActionResult> CategoryPartialView(string sortOrder,
             string currentFilter, string searchString, int? page)
         {
             ViewData["CurrentSort"] = sortOrder;
@@ -101,7 +143,7 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var categories =await _context.ProductCategories.ToListAsync();
+            var categories = await _context.ProductCategories.ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 categories = categories
@@ -130,11 +172,5 @@ namespace BuildingShopCore.Controllers
             int pageNumber = (page ?? 1);
             return PartialView(("_CategoryPartialView"), categories.ToPagedList(pageNumber, pageSize));
         }
-
-        //public async Task<IActionResult> CategoryPartialView()
-        //{
-        //    var categories=await _context.ProductCategories.ToArrayAsync();
-        //    return PartialView(categories);
-        //}
     }
 }

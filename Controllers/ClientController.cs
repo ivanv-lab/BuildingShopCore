@@ -94,7 +94,7 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<PartialViewResult> ClientPartialView(
+        public async Task<IActionResult> ClientPartialView(
             string sortOrder,string currentFilter, string searchString, int? page)
         {
             ViewBag.CurrentSort = sortOrder;
@@ -144,7 +144,7 @@ namespace BuildingShopCore.Controllers
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_ClientPartialLayout"), clients.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_ClientPartialView"), clients.ToPagedList(pageNumber, pageSize));
         }
     }
 }
