@@ -11,8 +11,58 @@ namespace BuildingShopCore.Controllers
         public ClientController(BuildingShopContext context)=>
             _context = context;
 
-        public IActionResult Index()=>
-             View();
+        //public IActionResult Index()=>
+        //     View();
+
+        public async Task<IActionResult> Index(string sortOrder, 
+            string currentFilter, string searchString, int? page)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["AddressSortParm"]= sortOrder == "Address" ? "Address_desc" : "Address";
+            ViewData["NameSortParm"] = sortOrder == "FIO" ? "FIO_desc" : "FIO";
+
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var clients = await _context.Clients.ToListAsync();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                clients = clients.Where(e => e.FIO.Contains(searchString)
+                || e.Address.Contains(searchString)
+                || e.Phone.Contains(searchString)
+                || e.Id.ToString().Contains(searchString)
+                && e.IsDeleted == false).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "Id_desc":
+                    clients = clients.OrderByDescending(c => c.Id).ToList();
+                    break;
+                case "Address":
+                    clients = clients.OrderBy(c => c.Address).ToList();
+                    break;
+                case "Address_desc":
+                    clients = clients.OrderByDescending(c => c.Address).ToList();
+                    break;
+                case "FIO":
+                    clients = clients.OrderBy(c => c.FIO).ToList();
+                    break;
+                case "FIO_desc":
+                    clients = clients.OrderByDescending(c => c.FIO).ToList();
+                    break;
+                default:
+                    clients = clients.OrderBy(c => c.Id).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(clients.ToPagedList(pageNumber, pageSize));
+        }
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -97,27 +147,24 @@ namespace BuildingShopCore.Controllers
         public async Task<IActionResult> ClientPartialView(
             string sortOrder,string currentFilter, string searchString, int? page)
         {
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.IdSortParm = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
-            ViewBag.AddressSortParm = sortOrder == "Address" ? "Address_desc":"Address";
-            ViewBag.NameSortParm = sortOrder == "FIO" ? "FIO_desc":"FIO";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["AddressSortParm"] = sortOrder == "Address" ? "Address_desc" : "Address";
+            ViewData["NameSortParm"] = sortOrder == "FIO" ? "FIO_desc" : "FIO";
 
-            if (searchString != null)
-                page = 1;
-            else
-                searchString = currentFilter;
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
 
-            ViewBag.CurrentFilter = searchString;
+            ViewData["CurrentFilter"] = searchString;
 
             var clients = await _context.Clients.ToListAsync();
-
             if (!String.IsNullOrEmpty(searchString))
             {
                 clients = clients.Where(e => e.FIO.Contains(searchString)
                 || e.Address.Contains(searchString)
                 || e.Phone.Contains(searchString)
-                || e.Id.ToString().Contains(searchString) 
-                && e.IsDeleted==false).ToList();
+                || e.Id.ToString().Contains(searchString)
+                && e.IsDeleted == false).ToList();
             }
 
             switch (sortOrder)
@@ -135,16 +182,16 @@ namespace BuildingShopCore.Controllers
                     clients = clients.OrderBy(c => c.FIO).ToList();
                     break;
                 case "FIO_desc":
-                    clients=clients.OrderByDescending(c=>c.FIO).ToList();
+                    clients = clients.OrderByDescending(c => c.FIO).ToList();
                     break;
                 default:
-                    clients=clients.OrderBy(c=>c.Id).ToList();
+                    clients = clients.OrderBy(c => c.Id).ToList();
                     break;
             }
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_ClientPartialView"), clients.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_ClientPartialView"),clients.ToPagedList(pageNumber, pageSize));
         }
     }
 }
