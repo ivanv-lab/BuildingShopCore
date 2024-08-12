@@ -1,5 +1,6 @@
 ﻿using BuildingShopCore.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList.Extensions;
 
@@ -11,8 +12,58 @@ namespace BuildingShopCore.Controllers
         public EmployeeController(BuildingShopContext context)=>
             _context = context;
         
-        public IActionResult Index()=>
-             View();
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter,
+            string searchString, int? page)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["AddressSortParm"] = sortOrder == "Address" ? "Address_desc" : "Address";
+            ViewData["NameSortParm"] = sortOrder == "FIO" ? "FIO_desc" : "FIO";
+
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var employees = await _context.Employees.ToListAsync();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                employees = employees.Where(e => e.FIO.Contains(searchString)
+                || e.Address.Contains(searchString)
+                || e.Phone.Contains(searchString)
+                || e.Id.ToString().Contains(searchString)
+                && e.IsDeleted == false).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "Id_desc":
+                    employees = employees.OrderByDescending(c => c.Id).ToList();
+                    break;
+                case "Address":
+                    employees = employees.OrderBy(c => c.Address).ToList();
+                    break;
+                case "Address_desc":
+                    employees = employees.OrderByDescending(c => c.Address).ToList();
+                    break;
+                case "FIO":
+                    employees = employees.OrderBy(c => c.FIO).ToList();
+                    break;
+                case "FIO_desc":
+                    employees = employees.OrderByDescending(c => c.FIO).ToList();
+                    break;
+                default:
+                    employees = employees.OrderBy(c => c.Id).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return PartialView(("_EmployeePartialView"), employees.ToPagedList(pageNumber, pageSize));
+        }
+
+        //public IActionResult Index()=>
+        //     View();
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -93,20 +144,18 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<PartialViewResult> EmployeePartialView(string sortOrder, string currentFilter,
+        public async Task<IActionResult> EmployeePartialView(string sortOrder, string currentFilter,
             string searchString, int? page)
         {
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.IdSortParm = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
-            ViewBag.AddressSortParm = sortOrder == "Address" ? "Address_desc" : "Address";
-            ViewBag.NameSortParm = sortOrder == "FIO" ? "FIO_desc" : "FIO";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["AddressSortParm"]= sortOrder == "Address" ? "Address_desc" : "Address";
+            ViewData["NameSortParm"]= sortOrder == "FIO" ? "FIO_desc" : "FIO";
 
-            if (searchString != null)
-                page = 1;
-            else
-                searchString = currentFilter;
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
 
-            ViewBag.CurrentFilter = searchString;
+            ViewData["CurrentFilter"] = searchString;
 
             var employees = await _context.Employees.ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
@@ -142,7 +191,7 @@ namespace BuildingShopCore.Controllers
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_EmployeePartiallayout"), employees.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_EmployeePartialView"), employees.ToPagedList(pageNumber, pageSize));
         }
     }
 }
