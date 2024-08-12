@@ -34,6 +34,7 @@ body {
 
     .my-custom-link:hover {
         background-color: #e9ecef;
+        text-decoration:none;
         color: #343a40;
     }
 
@@ -50,6 +51,7 @@ body {
 
     .my-custom-button:hover {
         background-color: #e9ecef;
+        text-decoration:none;
         color: #343a40;
     }
 

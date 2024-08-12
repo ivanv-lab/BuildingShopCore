@@ -14,14 +14,14 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label col-md-2">Наименование</label>
+                <label asp-for="Name" class="control-label text-md-start">Наименование</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <p>
                 <div class="form-group">
-                    <input type="submit" value="Сохранить" class="my-custom-button"/>
-                    <a class="my-custom-link" asp-action="Index">Назад</a>
+                        <input type="submit" value="Сохранить" class="my-custom-button"/>
+                        <a class="my-custom-link" asp-action="Index">Назад</a>
                 </div>
             </p>
         </form>
