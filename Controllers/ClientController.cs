@@ -27,7 +27,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var clients = await _context.Clients.ToListAsync();
+            var clients = await _context.Clients
+                .Where(c=>c.IsDeleted==false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 clients = clients.Where(e => e.FIO.Contains(searchString)
@@ -157,7 +158,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var clients = await _context.Clients.ToListAsync();
+            var clients = await _context.Clients
+                .Where(c => c.IsDeleted == false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 clients = clients.Where(e => e.FIO.Contains(searchString)

@@ -13,8 +13,82 @@ namespace BuildingShopCore.Controllers
         public OrderController(BuildingShopContext context)=>
             _context = context;
         
-        public IActionResult Index()=>
-             View();
+        //public IActionResult Index()=>
+        //     View();
+
+        public async Task<IActionResult> Index(string sortOrder,
+            string currentFilter, string searchString, int? page)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["DoneSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Done_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["SumSortParm"] = sortOrder == "Sum" ? "sum_desc" : "Sum";
+            ViewData["ClientSortParm"] = sortOrder == "Client" ? "client_desc" : "Client";
+            ViewData["EmployeeSortParm"] = sortOrder == "Empl" ? "empl_desc" : "Empl";
+            ViewData["IdSortParm"] = sortOrder == "Id" ? "id_desc" : "Id";
+
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var orders = await _context.Orders
+                .Where(o => o.IsDeleted == false).ToListAsync();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                orders = orders.Where(o => o.Date.ToString("dd.MM.yyyy").Contains(searchString)
+                || o.Client.FIO.Contains(searchString)
+                || o.Employee.FIO.Contains(searchString)
+                || o.Sum.ToString().Contains(searchString)
+                || o.Id.ToString().Contains(searchString)
+                && o.IsDeleted == false).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "Done_desc":
+                    orders = orders.OrderByDescending(o => o.Ready).ToList();
+                    break;
+                case "Date":
+                    orders = orders.OrderBy(o => o.Date).ToList();
+                    break;
+                case "date_desc":
+                    orders = orders.OrderByDescending(o => o.Date).ToList();
+                    break;
+                case "Sum":
+                    orders = orders.OrderBy(o => o.Sum).ToList();
+                    break;
+                case "sum_desc":
+                    orders = orders.OrderByDescending(o => o.Sum).ToList();
+                    break;
+                case "Client":
+                    orders = orders.OrderBy(o => o.Client.FIO).ToList();
+                    break;
+                case "client_desc":
+                    orders = orders.OrderByDescending(o => o.Client.FIO).ToList();
+                    break;
+                case "Empl":
+                    orders = orders.OrderBy(o => o.Employee.FIO).ToList();
+                    break;
+                case "empl_desc":
+                    orders = orders.OrderByDescending(o => o.Employee.FIO).ToList();
+                    break;
+                case "Id":
+                    orders = orders.OrderBy(o => o.Id).ToList();
+                    break;
+                case "id_desc":
+                    orders = orders.OrderByDescending(o => o.Id).ToList();
+                    break;
+                default:
+                    orders = orders.OrderBy(o => o.Ready).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(orders.ToPagedList(pageNumber, pageSize));
+        }
         
         public async Task<IActionResult> Details(int? id)
         {
@@ -106,24 +180,24 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<PartialViewResult> OrderPartilView(string sortOrder,
+        public async Task<IActionResult> OrderPartilView(string sortOrder,
             string currentFilter, string searchString, int? page)
         {
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.DoneSortParm = String.IsNullOrEmpty(sortOrder) ? "Done_desc" : "";
-            ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
-            ViewBag.SumSortParm = sortOrder == "Sum" ? "sum_desc" : "Sum";
-            ViewBag.ClientSortParm = sortOrder == "Client" ? "client_desc" : "Client";
-            ViewBag.EmployeeSortParm = sortOrder == "Empl" ? "empl_desc" : "Empl";
-            ViewBag.IdSortParm = sortOrder == "Id" ? "id_desc" : "Id";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["DoneSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Done_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["SumSortParm"] = sortOrder == "Sum" ? "sum_desc" : "Sum";
+            ViewData["ClientSortParm"] = sortOrder == "Client" ? "client_desc" : "Client";
+            ViewData["EmployeeSortParm"] = sortOrder == "Empl" ? "empl_desc" : "Empl";
+            ViewData["IdSortParm"] = sortOrder == "Id" ? "id_desc" : "Id";
 
-            if (searchString != null)
-                page = 1;
-            else
-                searchString = currentFilter;
-            ViewBag.CurrentFilter = searchString;
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
 
-            var orders = await _context.Orders.ToListAsync();
+            ViewData["CurrentFilter"]= searchString;
+
+            var orders = await _context.Orders
+                .Where(o=>o.IsDeleted==false).ToListAsync();
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -177,7 +251,7 @@ namespace BuildingShopCore.Controllers
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("OrderPartialLayout"), orders.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_OrderPartialView"), orders.ToPagedList(pageNumber, pageSize));
         }
     }
 }

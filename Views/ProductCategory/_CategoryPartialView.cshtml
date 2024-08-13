@@ -3,34 +3,35 @@
 @using X.PagedList.Extensions;
 @using X.Web.PagedList
 
-<div class="table-responsive">
-    <table class="table" id="CategoriesTable">
-    <tr>
-        <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Номер</a>
-        </th>
-        <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Наименование</a>
-        </th>
-    </tr>
-
-        @foreach(var item in Model)
+<div class="navbar-nav-scroll">
+    <table class="table table-hover" id="CategoriesTable">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Номер</a>
+                </th>
+                <th scope="col">
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Наименование</a>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        @foreach (var item in Model)
         {
             <tr>
-                <td>
+                <td scope="row">
                     @item.Id
                 </td>
-                <td>
+                <td scope="row">
                     @item.Name
                 </td>
-                <td>
-                    <div class="dropup-center dropup">
-                        <button class="my-custom-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            >>>
+                <td scope="row">
+                    <div class="btn-group dropstart d-print-none">
+                    <button class="my-custom-button table-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a asp-action="Edit" asp-route-id="@item.Id" class="my-custom-link">Редактировать</a></li>
-                            <li><a asp-action="Delete" asp-route-id="@item.Id" class="my-custom-link">Удалить</a></li>
+                        <ul class="dropdown-menu text-center">
+                            <li><a asp-action="Edit" asp-route-id="@item.Id" class="my-custom-link d-grid">Редактировать</a></li>
+                            <li><a asp-action="Delete" asp-route-id="@item.Id" class="my-custom-link d-grid">Удалить</a></li>
                         </ul>
                     </div>
                 </td>
@@ -43,5 +44,5 @@
     Страница @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
 
     @Html.PagedListPager(Model, page => Url.Action("Index",
-            new { page, sortOrder = ViewData["CurrentSort"], currentFilter = ViewData["CurrentFilter"]}))
+            new { page, sortOrder = ViewData["CurrentSort"], currentFilter = ViewData["CurrentFilter"] }))
 </div>

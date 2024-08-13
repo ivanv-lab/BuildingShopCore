@@ -14,7 +14,7 @@
         public string CountryProd { get; set; }
         public string Prod {  get; set; }
         public int Count {  get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }=false;
         public virtual ProductCategory Category { get; set; }
         public ICollection<OrderProduct> ProductList { get; set; }
     }

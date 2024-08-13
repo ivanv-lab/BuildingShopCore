@@ -17,7 +17,7 @@
             margin-left: -1px;
             line-height: 1.428571429;
             text-decoration: none;
-            background-color: #ffffff;
+            background-color: #f8f9fa;
             border: 1px solid #dddddd;
         }
 
@@ -38,7 +38,7 @@
         .pagination > li > span:hover,
         .pagination > li > a:focus,
         .pagination > li > span:focus {
-            background-color: #eeeeee;
+            background-color: #f8f9fa;
         }
 
     .pagination > .active > a,
@@ -48,7 +48,7 @@
     .pagination > .active > a:focus,
     .pagination > .active > span:focus {
         z-index: 2;
-        color: #ffffff;
+        color: #f8f9fa;
         cursor: default;
         background-color: #428bca;
         border-color: #428bca;

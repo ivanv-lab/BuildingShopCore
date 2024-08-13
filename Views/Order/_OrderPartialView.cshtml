@@ -1,0 +1,74 @@
+﻿@model IPagedList<BuildingShopCore.Models.Order>
+@using X.PagedList;
+@using X.PagedList.Extensions;
+@using X.Web.PagedList
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Номер</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Дата</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Готовность</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Клиент</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Сотрудник</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["IdSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="my-custom-button">Сумма</a>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.Date
+                </td>
+                <td>
+                    @item.Ready
+                </td>
+                <td>
+                    @item.Client.FIO
+                </td>
+                <td>
+                    @item.Employee.FIO
+                </td>
+                <td>
+                    @item.Sum
+                </td>
+                <td>
+                    <div class="dropup-center dropup">
+                        <button class="my-custom-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            >>>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
+                            <li><a asp-action="Details" asp-route-id="@item.Id">Details</a></li>
+                            <li><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-print-none">
+    Страница @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Index",
+            new { page, sortOrder = ViewData["CurrentSort"], currentFilter = ViewData["CurrentFilter"] }))
+</div>

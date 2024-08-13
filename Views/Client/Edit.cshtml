@@ -1,47 +1,41 @@
 ﻿@model BuildingShopCore.Models.Client
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактирование";
 }
 
-<h1>Edit</h1>
+<h2>Редактирование клиента</h2>
 
-<h4>Client</h4>
+<h4>№@Model.Id</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-10">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="FIO" class="control-label"></label>
+                <label asp-for="FIO" class="control-label text-md-start">ФИО</label>
                 <input asp-for="FIO" class="form-control" />
                 <span asp-validation-for="FIO" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
+                <label asp-for="Address" class="control-label text-md-start">Адрес</label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <label asp-for="Phone" class="control-label text-md-start">Номер телефона</label>
+                <input asp-for="Phone" class="form-control" id="Phone"/>
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
-            </div>
+            <p>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Сохранить" class="my-custom-button" />
+                    <a asp-action="Index" class="my-custom-link">Назад</a>
             </div>
+            </p>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

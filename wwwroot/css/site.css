@@ -21,6 +21,15 @@ body {
   margin-bottom: 60px;
 }
 
+tr{
+    vertical-align:middle;
+}
+
+th{
+    vertical-align:middle;
+    text-align:center;
+}
+
 .my-custom-link {
     color: #007bff;
     text-decoration: none;

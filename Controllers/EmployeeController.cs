@@ -25,7 +25,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var employees = await _context.Employees.ToListAsync();
+            var employees = await _context.Employees
+                .Where(e=>e.IsDeleted==false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 employees = employees.Where(e => e.FIO.Contains(searchString)
@@ -59,7 +60,7 @@ namespace BuildingShopCore.Controllers
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_EmployeePartialView"), employees.ToPagedList(pageNumber, pageSize));
+            return View(employees.ToPagedList(pageNumber, pageSize));
         }
 
         //public IActionResult Index()=>
@@ -157,7 +158,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var employees = await _context.Employees.ToListAsync();
+            var employees = await _context.Employees
+                .Where(e => e.IsDeleted == false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 employees=employees.Where(e=>e.FIO.Contains(searchString)

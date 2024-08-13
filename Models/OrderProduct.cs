@@ -7,7 +7,7 @@
         public int OrderId {  get; set; }
         public int Count {  get; set; }
         public decimal Price {  get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }=false;
         public virtual Order Order { get; set; }
         public virtual Product Product { get; set; }
     }

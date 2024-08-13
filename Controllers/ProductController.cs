@@ -17,9 +17,92 @@ namespace BuildingShopCore.Controllers
             _environment = environment;
         }
             
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter,
+            string searchString, int? page)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
+            ViewData["DescSortParm"] = sortOrder == "Desc" ? "Desc_desc" : "Desc";
+            ViewData["CatSortParm"] = sortOrder == "Cat" ? "Cat_desc" : "Cat";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_desc" : "Price";
+            ViewData["CountrySortParm"] = sortOrder == "Country" ? "Country_desc" : "Country";
+            ViewData["ProdSortParm"] = sortOrder == "Prod" ? "Prod_desc" : "Prod";
+            ViewData["CountSortParm"] = sortOrder == "Count" ? "Count_desc" : "Count";
 
-        public IActionResult Index()=>
-             View();
+            if (searchString != null) page = 1;
+            else searchString = currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+
+            var products = await _context.Products
+                .Where(p=>p.IsDeleted==false).ToListAsync();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                products = products
+                    .Where(p => p.Id.ToString().Contains(searchString)
+                    || p.Name.Contains(searchString)
+                    || p.Description.Contains(searchString)
+                    || p.CategoryId.ToString().Contains(searchString)
+                    || p.Price.ToString().Contains(searchString)
+                    || p.CountryProd.Contains(searchString)
+                    || p.Prod.Contains(searchString)
+                    || p.Count.ToString().Contains(searchString)
+                    && p.IsDeleted == false).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "Id_desc":
+                    products = products.OrderByDescending(p => p.Id).ToList();
+                    break;
+                case "Desc":
+                    products = products.OrderBy(p => p.Description).ToList();
+                    break;
+                case "Desc_desc":
+                    products = products.OrderByDescending(p => p.Description).ToList();
+                    break;
+                case "Price":
+                    products = products.OrderBy(p => p.Price).ToList();
+                    break;
+                case "Price_desc":
+                    products = products.OrderByDescending(p => p.Price).ToList();
+                    break;
+                case "Country":
+                    products = products.OrderBy(p => p.CountryProd).ToList();
+                    break;
+                case "Country_desc":
+                    products = products.OrderByDescending(p => p.CountryProd).ToList();
+                    break;
+                case "Cat":
+                    products = products.OrderBy(p => p.Category.Name).ToList();
+                    break;
+                case "Cat_desc":
+                    products = products.OrderByDescending(p => p.Category.Name).ToList();
+                    break;
+                case "Prod":
+                    products = products.OrderBy(p => p.Prod).ToList();
+                    break;
+                case "Prod_desc":
+                    products = products.OrderByDescending(p => p.Prod).ToList();
+                    break;
+                case "Count":
+                    products = products.OrderBy(p => p.Count).ToList();
+                    break;
+                case "Count_desc":
+                    products = products.OrderByDescending(p => p.Count).ToList();
+                    break;
+                default:
+                    products = products.OrderBy(p => p.Id).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(products.ToPagedList(pageNumber, pageSize));
+        }
+
+        //public IActionResult Index()=>
+        //     View();
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -118,24 +201,25 @@ namespace BuildingShopCore.Controllers
             base.Dispose(disposing);
         }
 
-        public async Task<IActionResult> ProductpartialView(string sortOrder, string currentFilter, 
+        public async Task<IActionResult> ProductPartialView(string sortOrder, string currentFilter, 
             string searchString, int? page)
         {
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.IdSortParm = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
-            ViewBag.NameSortParm = sortOrder == "Name" ? "Name_desc" : "Name";
-            ViewBag.DescSortParm = sortOrder == "Desc" ? "Desc_desc" : "Desc";
-            ViewBag.CatSortParm = sortOrder == "Cat" ? "Cat_desc" : "Cat";
-            ViewBag.PriceSortParm = sortOrder == "Price" ? "Price_desc" : "Price";
-            ViewBag.CountrySortParm = sortOrder == "Country" ? "Country_desc" : "Country";
-            ViewBag.ProdSortParm = sortOrder == "Prod" ? "Prod_desc" : "Prod";
-            ViewBag.CountSortParm = sortOrder == "Count" ? "Count_desc" : "Count";
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
+            ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
+            ViewData["DescSortParm"] = sortOrder == "Desc" ? "Desc_desc" : "Desc";
+            ViewData["CatSortParm"] = sortOrder == "Cat" ? "Cat_desc" : "Cat";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_desc" : "Price";
+            ViewData["CountrySortParm"] = sortOrder == "Country" ? "Country_desc" : "Country";
+            ViewData["ProdSortParm"] = sortOrder == "Prod" ? "Prod_desc" : "Prod";
+            ViewData["CountSortParm"] = sortOrder == "Count" ? "Count_desc" : "Count";
 
             if (searchString != null) page = 1;
             else searchString = currentFilter;
-            ViewBag.CurrentFilter = searchString;
+            ViewData["CurrentFilter"]= searchString;
 
-            var products=await _context.Products.ToListAsync();
+            var products = await _context.Products
+                .Where(p => p.IsDeleted == false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 products=products
@@ -198,7 +282,7 @@ namespace BuildingShopCore.Controllers
 
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return PartialView(("_ProductPartialLayout"), products.ToPagedList(pageNumber, pageSize));
+            return PartialView(("_ProductPartialView"), products.ToPagedList(pageNumber, pageSize));
         }
     }
 }

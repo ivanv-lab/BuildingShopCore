@@ -24,7 +24,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var categories = await _context.ProductCategories.ToListAsync();
+            var categories = await _context.ProductCategories
+                .Where(p => p.IsDeleted == false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 categories = categories
@@ -143,7 +144,8 @@ namespace BuildingShopCore.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var categories = await _context.ProductCategories.ToListAsync();
+            var categories = await _context.ProductCategories
+                .Where(p=>p.IsDeleted==false).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 categories = categories

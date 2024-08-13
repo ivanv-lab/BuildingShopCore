@@ -12,7 +12,7 @@
         public bool Ready {  get; set; }
         public System.DateTime Date { get; set; }
         public decimal Sum {  get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }=false;
         public virtual Client Client { get; set; }
         public virtual Employee Employee { get; set; }
         public virtual ICollection<OrderProduct> ProductList { get; set; }
