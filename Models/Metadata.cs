@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace BuildingShopCore.Models
 {
@@ -66,7 +67,7 @@ namespace BuildingShopCore.Models
     public class ProductMetadata
     {
         [Display(Name = "Категория")]
-        public int CategoryId { get; set; }
+        public Nullable<int> CategoryId { get; set; }
         [Required]
         public string Name { get; set; }
 
@@ -86,7 +87,7 @@ namespace BuildingShopCore.Models
         public decimal Price { get; set; }
 
         [Display(Name = "Категория товара")]
-        public virtual ProductCategory Category { get; set; }
+        public ProductCategory Category { get; set; }
 
         [Required]
         [Display(Name = "Количество")]

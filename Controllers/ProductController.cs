@@ -23,10 +23,8 @@ namespace BuildingShopCore.Controllers
             ViewData["CurrentSort"] = sortOrder;
             ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
             ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
-            ViewData["DescSortParm"] = sortOrder == "Desc" ? "Desc_desc" : "Desc";
             ViewData["CatSortParm"] = sortOrder == "Cat" ? "Cat_desc" : "Cat";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_desc" : "Price";
-            ViewData["CountrySortParm"] = sortOrder == "Country" ? "Country_desc" : "Country";
             ViewData["ProdSortParm"] = sortOrder == "Prod" ? "Prod_desc" : "Prod";
             ViewData["CountSortParm"] = sortOrder == "Count" ? "Count_desc" : "Count";
 
@@ -35,14 +33,14 @@ namespace BuildingShopCore.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var products = await _context.Products
-                .Where(p=>p.IsDeleted==false).ToListAsync();
+                .Where(p=>p.IsDeleted==false).Include(p=>p.Category).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
                 products = products
                     .Where(p => p.Id.ToString().Contains(searchString)
                     || p.Name.Contains(searchString)
                     || p.Description.Contains(searchString)
-                    || p.CategoryId.ToString().Contains(searchString)
+                    || p.Category.Name.ToString().Contains(searchString)
                     || p.Price.ToString().Contains(searchString)
                     || p.CountryProd.Contains(searchString)
                     || p.Prod.Contains(searchString)
@@ -55,23 +53,17 @@ namespace BuildingShopCore.Controllers
                 case "Id_desc":
                     products = products.OrderByDescending(p => p.Id).ToList();
                     break;
-                case "Desc":
-                    products = products.OrderBy(p => p.Description).ToList();
-                    break;
-                case "Desc_desc":
-                    products = products.OrderByDescending(p => p.Description).ToList();
-                    break;
                 case "Price":
                     products = products.OrderBy(p => p.Price).ToList();
                     break;
+                case "Name":
+                    products=products.OrderBy(p => p.Name).ToList();
+                    break;
+                case "Name_desc":
+                    products=products.OrderByDescending(p => p.Name).ToList();
+                    break;
                 case "Price_desc":
                     products = products.OrderByDescending(p => p.Price).ToList();
-                    break;
-                case "Country":
-                    products = products.OrderBy(p => p.CountryProd).ToList();
-                    break;
-                case "Country_desc":
-                    products = products.OrderByDescending(p => p.CountryProd).ToList();
                     break;
                 case "Cat":
                     products = products.OrderBy(p => p.Category.Name).ToList();
@@ -104,7 +96,7 @@ namespace BuildingShopCore.Controllers
         //public IActionResult Index()=>
         //     View();
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Info(int? id)
         {
             if (id == null) return BadRequest();
             Product product = await _context.Products.FindAsync(id);
@@ -114,20 +106,27 @@ namespace BuildingShopCore.Controllers
 
         public IActionResult Create()
         {
-            ViewBag.CategoryId = new SelectList(_context.ProductCategories, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList
+                (_context.ProductCategories.Where(pc=>pc.IsDeleted==false), "Id", "Name");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind(include: "Id,Name,Description,CategoryId,Price,Count,CountryProd,Prod")] 
-        Product product,IFormFile image)
+        Product product,IFormFile? image)
         {
             if (ModelState.IsValid)
             {
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
-                if(image != null && image.Length > 0)
+                if (product.CategoryId.HasValue)
+                {
+                    await _context.Entry(product)
+                        .Reference(p => p.Category)
+                        .LoadAsync();
+                }
+                if (image != null && image.Length > 0)
                 {
                     var fileName=product.Id.ToString()+Path.GetExtension(image.FileName);
                     var path = Path.Combine(_environment.WebRootPath, "ProductImages", fileName);
@@ -137,7 +136,9 @@ namespace BuildingShopCore.Controllers
                 HttpContext.Session.SetString("Notification", $"Товар №{product.Id.ToString()} успешно создан");
                 return RedirectToAction("Index");
             }
-            ViewBag.CategoryId = new SelectList(_context.ProductCategories, "Id", "Name", product.CategoryId);
+            ViewData["CategoryId"] = new SelectList
+                            (_context.ProductCategories.Where(pc => pc.IsDeleted == false),
+                            "Id", "Name",product.CategoryId);
             return View(product);
         }
 
@@ -147,7 +148,8 @@ namespace BuildingShopCore.Controllers
             if (id == null) return BadRequest();
             Product product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
-            ViewBag.CategoryId = new SelectList(_context.ProductCategories, "Id", "Name", product.CategoryId);
+            ViewData["CategoryId"] = new SelectList
+                (_context.ProductCategories.Where(pc => pc.IsDeleted == false), "Id", "Name");
             return View(product);
         }
 
@@ -161,6 +163,12 @@ namespace BuildingShopCore.Controllers
             {
                 _context.Entry(product).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                if (product.CategoryId.HasValue)
+                {
+                    await _context.Entry(product)
+                        .Reference(p => p.Category)
+                        .LoadAsync();
+                }
                 if (image != null && image.Length>0) 
                 {
                     var filename = product.Id.ToString() + Path.GetExtension(image.FileName);
@@ -171,7 +179,8 @@ namespace BuildingShopCore.Controllers
                 HttpContext.Session.SetString("Notification", $"Товар №{product.Id.ToString()} успешно изменен");
                 return RedirectToAction("Index");
             }
-            ViewBag.CategoryId=new SelectList(_context.ProductCategories,"Id", "Name", product.CategoryId);
+            ViewBag.CategoryId=new SelectList
+                (_context.ProductCategories,"Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -207,31 +216,29 @@ namespace BuildingShopCore.Controllers
             ViewData["CurrentSort"] = sortOrder;
             ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "Id_desc" : "";
             ViewData["NameSortParm"] = sortOrder == "Name" ? "Name_desc" : "Name";
-            ViewData["DescSortParm"] = sortOrder == "Desc" ? "Desc_desc" : "Desc";
             ViewData["CatSortParm"] = sortOrder == "Cat" ? "Cat_desc" : "Cat";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_desc" : "Price";
-            ViewData["CountrySortParm"] = sortOrder == "Country" ? "Country_desc" : "Country";
             ViewData["ProdSortParm"] = sortOrder == "Prod" ? "Prod_desc" : "Prod";
             ViewData["CountSortParm"] = sortOrder == "Count" ? "Count_desc" : "Count";
 
             if (searchString != null) page = 1;
             else searchString = currentFilter;
-            ViewData["CurrentFilter"]= searchString;
+            ViewData["CurrentFilter"] = searchString;
 
             var products = await _context.Products
-                .Where(p => p.IsDeleted == false).ToListAsync();
+                .Where(p => p.IsDeleted == false).Include(p => p.Category).ToListAsync();
             if (!String.IsNullOrEmpty(searchString))
             {
-                products=products
-                    .Where(p=>p.Id.ToString().Contains(searchString)
+                products = products
+                    .Where(p => p.Id.ToString().Contains(searchString)
                     || p.Name.Contains(searchString)
                     || p.Description.Contains(searchString)
-                    || p.CategoryId.ToString().Contains(searchString)
+                    || p.Category.Name.ToString().Contains(searchString)
                     || p.Price.ToString().Contains(searchString)
                     || p.CountryProd.Contains(searchString)
                     || p.Prod.Contains(searchString)
                     || p.Count.ToString().Contains(searchString)
-                    && p.IsDeleted==false).ToList();
+                    && p.IsDeleted == false).ToList();
             }
 
             switch (sortOrder)
@@ -239,23 +246,11 @@ namespace BuildingShopCore.Controllers
                 case "Id_desc":
                     products = products.OrderByDescending(p => p.Id).ToList();
                     break;
-                case "Desc":
-                    products = products.OrderBy(p => p.Description).ToList();
-                    break;
-                case "Desc_desc":
-                    products = products.OrderByDescending(p => p.Description).ToList();
-                    break;
                 case "Price":
                     products = products.OrderBy(p => p.Price).ToList();
                     break;
                 case "Price_desc":
                     products = products.OrderByDescending(p => p.Price).ToList();
-                    break;
-                case "Country":
-                    products = products.OrderBy(p => p.CountryProd).ToList();
-                    break;
-                case "Country_desc":
-                    products = products.OrderByDescending(p => p.CountryProd).ToList();
                     break;
                 case "Cat":
                     products = products.OrderBy(p => p.Category.Name).ToList();
@@ -280,7 +275,7 @@ namespace BuildingShopCore.Controllers
                     break;
             }
 
-            int pageSize = 10;
+                    int pageSize = 10;
             int pageNumber = (page ?? 1);
             return PartialView(("_ProductPartialView"), products.ToPagedList(pageNumber, pageSize));
         }

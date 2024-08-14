@@ -1,66 +1,76 @@
 ﻿@model BuildingShopCore.Models.Product
 
 @{
-    ViewData["Title"] = "Info";
+    ViewData["Title"] = "Информация";
 }
 
-<h1>Info</h1>
+<h2>Информация о товаре №@Model.Id</h2>
 
-<div>
-    <h4>Product</h4>
+<div class="row">
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CountryProd)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CountryProd)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Prod)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Prod)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Count)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Count)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsDeleted)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsDeleted)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Наименование</label>
+        <label class="form-control">@Model.Name</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Описание</label>
+        <label class="form-control">@Model.Description</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Цена</label>
+        <label class="form-control">@Model.Price</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Производитель</label>
+        <label class="form-control">@Model.Prod</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Страна-производитель</label>
+        <label class="form-control">@Model.CountryProd</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Количество на складе</label>
+        <label class="form-control">@Model.Count</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label text-md-start">Категория</label>
+        <label class="form-control">@Model.Category.Name</label>
+    </div>
+    <div id="imgDiv" class="form-group">
+        <label class="control-label text-md-start">Изображение</label>
+        <img src="@Url.Content("/ProductImages/"+Model.Id+".jpg")"
+             style="max-height:300px; max-width:300px;" />
+    </div>
+    <p>
+        <div class="form-group"> 
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="my-custom-link">Редактировать</a> |
+            <a asp-action="Index" class="my-custom-link">Назад</a>
+        </div>
+    </p>
+    </div>
+
+    <script>
+    function checkImageExists(imageUrl, callback) {
+        let img = new Image();
+        img.onerror = function () {
+            callback(false);
+        };
+        img.onload = function () {
+            callback(true);
+        };
+        img.src = imageUrl;
+    }
+
+    let img = "@Url.Content("/ProductImages/" + Model.Id + ".jpg")";
+    console.log(img.src);
+
+        checkImageExists(img, function (exists) {
+            if (exists) {
+                console.log("true");
+            }
+            else {
+                document.getElementById('imgDiv').style.display = 'none';
+            }
+        });
+    </script>
+

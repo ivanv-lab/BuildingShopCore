@@ -1,69 +1,96 @@
 ﻿@model BuildingShopCore.Models.Product
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактирование";
 }
 
-<h1>Edit</h1>
+<h2>Редактирование товара</h2>
 
-<h4>Product</h4>
+<h4>№@Model.Id</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-10">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
+                <label asp-for="Name" class="control-label text-md-start">Наименование</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
+                <label asp-for="Description" class="control-label text-md-start">Описание</label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                <label asp-for="CategoryId" class="control-label text-md-start">Категория</label>
+                <select asp-for="CategoryId" class="form-control" asp-items="@ViewData["CategoryId"] as SelectList"></select>
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
+                <label asp-for="Price" class="control-label text-md-start">Цена</label>
                 <input asp-for="Price" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CountryProd" class="control-label"></label>
+                <label asp-for="CountryProd" class="control-label text-md-start">Страна-производиель</label>
                 <input asp-for="CountryProd" class="form-control" />
                 <span asp-validation-for="CountryProd" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Prod" class="control-label"></label>
+                <label asp-for="Prod" class="control-label text-md-start">Производитель</label>
                 <input asp-for="Prod" class="form-control" />
                 <span asp-validation-for="Prod" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Count" class="control-label"></label>
+                <label asp-for="Count" class="control-label text-md-start">Количество</label>
                 <input asp-for="Count" class="form-control" />
                 <span asp-validation-for="Count" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
+            <div class="form-group">
+                <label class="control-label text-md-start">Изображение</label>
+                    <input type="file" name="image" accept=".jpg,.png" class="form-control" id="prodImg"/>
+                    <div id="imgDiv" class="card-img mt-3">
+                        <img src="@Url.Content("/ProductImages/"+Model.Id+".jpg")"
+                             style="max-height:300px; max-width:300px;" 
+                </div>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Сохранить" class="my-custom-button" />
+                <a asp-action="Index" class="my-custom-link">Назад</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+<script>
+    function checkImageExists(imageUrl, callback) {
+        let img = new Image();
+        img.onerror = function () {
+            callback(false);
+        };
+        img.onload = function () {
+            callback(true);
+        };
+        img.src = imageUrl;
+    }
+
+    let img = "@Url.Content("/ProductImages/" + Model.Id + ".jpg")";
+    console.log(img.src);
+
+    checkImageExists(img, function (exists) {
+        if (exists) {
+            console.log("true");
+        }
+        else {
+            document.getElementById('imgDiv').style.display = 'none';
+        }
+    });
+</script>
