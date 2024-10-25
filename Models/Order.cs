@@ -1,6 +1,6 @@
 ﻿namespace BuildingShopCore.Models
 {
-    public partial class Order
+    public class Order
     {
         public Order()
         {

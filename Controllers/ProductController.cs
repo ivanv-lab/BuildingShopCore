@@ -100,6 +100,12 @@ namespace BuildingShopCore.Controllers
         {
             if (id == null) return BadRequest();
             Product product = await _context.Products.FindAsync(id);
+            if (product.CategoryId.HasValue)
+            {
+                await _context.Entry(product)
+                    .Reference(p => p.Category)
+                    .LoadAsync();
+            }
             if (product == null) return NotFound();
             return View(product);
         }
@@ -157,7 +163,7 @@ namespace BuildingShopCore.Controllers
         [OutputCache(NoStore = true, Duration = 0)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind(include: "Id,Name,Description,CategoryId,Price,Count,CountryProd,Prod")] Product product,
-            IFormFile image)
+            IFormFile? image)
         {
             if (ModelState.IsValid)
             {
@@ -188,7 +194,13 @@ namespace BuildingShopCore.Controllers
         {
             if (id == null) return BadRequest();
             Product product = await _context.Products.FindAsync(id);
-            if(product == null) return NotFound();
+            if (product.CategoryId.HasValue)
+            {
+                await _context.Entry(product)
+                    .Reference(p => p.Category)
+                    .LoadAsync();
+            }
+            if (product == null) return NotFound();
             return View(product);
         }
 
@@ -197,6 +209,12 @@ namespace BuildingShopCore.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             Product product = await _context.Products.FindAsync(id);
+            if (product.CategoryId.HasValue)
+            {
+                await _context.Entry(product)
+                    .Reference(p => p.Category)
+                    .LoadAsync();
+            }
             product.IsDeleted = true;
             _context.Entry(product).State = EntityState.Modified;
             await _context.SaveChangesAsync();

@@ -1,6 +1,6 @@
 ﻿namespace BuildingShopCore.Models
 {
-    public partial class Employee
+    public class Employee
     {
         public Employee()
         {

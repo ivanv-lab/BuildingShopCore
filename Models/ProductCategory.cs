@@ -1,6 +1,6 @@
 ﻿namespace BuildingShopCore.Models
 {
-    public partial class ProductCategory
+    public class ProductCategory
     {
         public ProductCategory()
         {

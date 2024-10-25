@@ -1,6 +1,6 @@
 ﻿namespace BuildingShopCore.Models
 {
-    public partial class Client
+    public class Client
     {
         public Client()
         {
